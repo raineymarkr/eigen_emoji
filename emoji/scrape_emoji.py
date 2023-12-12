@@ -1,0 +1,56 @@
+import requests
+from bs4 import BeautifulSoup
+import os
+
+# URL of the webpage with the emoji list
+url = "https://www.unicode.org/emoji/charts/full-emoji-list.html"
+
+# Custom headers with a user agent
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+
+# Directory to save images
+save_dir = r"C:\Users\mark.rainey\eigen_emoji\emoji"
+os.makedirs(save_dir, exist_ok=True)
+
+print("Sending request to URL...")
+try:
+    response = requests.get(url, headers=headers, timeout=10)
+except requests.Timeout:
+    print("Request timed out.")
+    exit()
+except requests.RequestException as e:
+    print(f"Request failed: {e}")
+    exit()
+
+if response.status_code == 200:
+    print('got site')
+    soup = BeautifulSoup(response.content, 'html.parser')
+    images = soup.find_all('img', class_='imga')
+
+    for img in images:
+        image_url = img['src']
+        # Check if the URL is absolute or relative
+        if not image_url.startswith('http'):
+            image_url = 'https://www.unicode.org' + image_url
+
+        try:
+            image_response = requests.get(image_url)
+            if image_response.status_code == 200:
+                print('found')
+                file_path = os.path.join(save_dir, os.path.basename(image_url))
+                print(file_path)
+                with open(file_path, 'wb') as f:
+                    f.write(image_response.content)
+                print(f'Downloaded: {os.path.basename(image_url)}')
+            else:
+                print(f'Failed to download {image_url}')
+        except Exception as e:
+            print(f'Error downloading {image_url}: {e}')
+
+        time.sleep(0.5)  # Add a small delay to be respectful to the server
+else:
+    print("Failed to retrieve the webpage")
+
+
+# Note: This script is very basic and may need to be adjusted depending on the actual structure of the webpage.
