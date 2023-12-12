@@ -1,7 +1,7 @@
 import os
 
 # Replace 'your_folder_path' with the path to your folder
-folder_path = r"C:\Users\mark.rainey\eigen_emoji\emoji\training"
+folder_path = r"C:\Users\mark.rainey\eigen_emoji\emoji"
 
 # Iterate through each file in the folder
 for i, filename in enumerate(os.listdir(folder_path)):
